@@ -1,0 +1,46 @@
+# an IP may match two different lists. if they give different results,
+# which should take precedence?
+precedence: [block, require-sasl]
+
+# the dnsbls to check for every client entering the network
+# these are just examples to show the possibilities for the config
+lists:
+    -
+        # host - specific hostname to use
+        host: "dnsbl.dronebl.org"
+
+        # action to take if the client matches this dnsbl:
+        # - allow - let the client access the network
+        # - block - block the client from accessing the network, with the given message
+        # - require-sasl - require the client to login with SASL, kill them if they don't
+        action: block
+
+        # reason that's shown if they're unable to access the network because of this rbl.
+        # we support the following variables:
+        # - "{ip}" - their IP address
+        reason: "Your IP {ip} is listed in DroneBL. For assistance, see http://dronebl.org/lookup?ip={ip}"
+
+        # specific replies to take action on. these are based on the last octet of the return IP.
+        # for example, "24" or "13,54,24" would both match a result of "127.0.0.24" from the rbl.
+        replies:
+            -
+                # these are proxies: https://dronebl.org/classes
+                codes: [8, 9, 10, 11]
+                action: require-sasl
+                reason: "You need to enable SASL to access this network. For assistance, see http://dronebl.org/lookup?ip={ip}"
+            -
+                # this is the "testing class":
+                codes: [1]
+                action: allow
+
+    -
+        host: "rbl.efnetrbl.org"
+        # restrict to IPv4 only (use 6 for IPv6)
+        addresses: 4
+        action: block
+        reason: "Your IP {ip} is listed in the EFnet RBL. For assistance, see http://efnetrbl.org/?i={ip}"
+
+    -
+        host: "torexit.dan.me.uk"
+        action: require-sasl
+        reason: "You need to enable SASL to access this network while using TOR"

@@ -167,6 +167,11 @@ func LoadRawConfig(filename string) (config Config, err error) {
 }
 
 func run() (output IPScriptOutput, err error) {
+	var ipaddr net.IP
+	defer func() {
+		output.BanMessage = strings.Replace(output.BanMessage, "{ip}", ipaddr.String(), -1)
+	}()
+
 	if len(os.Args) < 2 {
 		err = fmt.Errorf("no config file supplied")
 		return
@@ -192,7 +197,7 @@ func run() (output IPScriptOutput, err error) {
 		return
 	}
 
-	ipaddr := net.ParseIP(input.IP)
+	ipaddr = net.ParseIP(input.IP)
 	if ipaddr == nil {
 		err = fmt.Errorf("corrupt ip address %s", input.IP)
 		return
@@ -203,13 +208,19 @@ func run() (output IPScriptOutput, err error) {
 	reasons := make([]string, len(config.Lists))
 	for i, list := range config.Lists {
 		codes[i], reasons[i] = evaluateDNSBL(list, ipv4, reversed, debug)
+		// fast path, if we got the highest precedence answer, no need to query any more
+		if codes[i] == config.Precedence[0] {
+			output.Result = codes[i]
+			output.BanMessage = reasons[i]
+			return
+		}
 	}
 
 	for _, action := range config.Precedence {
 		for i := 0; i < len(config.Lists); i++ {
 			if codes[i] == action {
 				output.Result = action
-				output.BanMessage = strings.Replace(reasons[i], "{ip}", ipaddr.String(), -1)
+				output.BanMessage = reasons[i]
 				return
 			}
 		}

@@ -20,4 +20,6 @@ To configure oragono to use this plugin, add a section like this to your `server
         timeout: 4s
         # how long after the SIGTERM before we follow up with a SIGKILL:
         kill-timeout: 1s
+        # how many scripts are allowed to run at once? 0 for no limit:
+        max-concurrency: 64
 ```

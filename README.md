@@ -23,3 +23,18 @@ To configure oragono to use this plugin, add a section like this to your `server
         # how many scripts are allowed to run at once? 0 for no limit:
         max-concurrency: 64
 ```
+
+Here's an example of how to test your configuration from a shell:
+
+```bash
+# 1.1.1.1 should not be on any blocklists:
+echo '{"ip": "1.1.1.1"}' | ./oragono-dnsbl ./config.yaml
+# expected output:
+# {"result":1,"banMessage":"","cacheNet":"","cacheSeconds":0,"error":""}
+
+# a Tor exit node that should be blocked by our example config file;
+# see https://www.dan.me.uk/torlist/?exit for an up-to-date list of exit nodes
+echo '{"ip": "103.253.41.98"}' | ./oragono-dnsbl ./config.yaml
+# expected output:
+# {"result":3,"banMessage":"You need to enable SASL to access this network while using TOR","cacheNet":"","cacheSeconds":0,"error":""}
+```

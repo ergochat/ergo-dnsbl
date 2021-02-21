@@ -43,4 +43,4 @@ lists:
     -
         host: "torexit.dan.me.uk"
         action: require-sasl
-        reason: "You need to enable SASL to access this network while using TOR"
+        reason: "You need to enable SASL to access this network while using Tor"

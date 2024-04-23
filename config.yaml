@@ -39,6 +39,12 @@ lists:
         addresses: 4
         action: block
         reason: "Your IP {ip} is listed in the EFnet RBL. For assistance, see http://efnetrbl.org/?i={ip}"
+        replies:
+            -
+                # Tor exit nodes
+                codes: [4]
+                action: require-sasl
+                reason: "You need to enable SASL to access this network while using Tor"
 
     -
         host: "torexit.dan.me.uk"
